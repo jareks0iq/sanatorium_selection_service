@@ -1,4 +1,5 @@
 from domain.model import (
+    Event,
     PasswordChanged,
     PasswordNotChanged,
     ProfileCreated,
@@ -21,7 +22,7 @@ from service_layer.handlers import (
 
 
 class EventsBus:
-    def handle(self, event):
+    def handle(self, event: Event):
         if isinstance(event, PasswordChanged):
             handle_password_changed(event)
         elif isinstance(event, PasswordNotChanged):

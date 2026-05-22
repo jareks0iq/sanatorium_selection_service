@@ -30,3 +30,27 @@ ignore = []
 [tool.ruff.format]
 # использовать двойные кавычки как стандарт
 quote-style = "double"
+
+[tool.mypy]
+# целевая версия Python
+python_version = "3.11"
+# показывать коды ошибок — удобно, чтобы понимать что за правило
+show_error_codes = true
+# красивый вывод с подсветкой проблемного места
+pretty = true
+# предупреждать о ненужных # type: ignore комментариях
+warn_unused_ignores = true
+# предупреждать, если функция что-то возвращает, но помечена как -> None
+warn_return_any = true
+# требовать аннотаций у определений функций
+disallow_untyped_defs = false
+# игнорировать отсутствие типов в сторонних библиотеках без заглушек
+ignore_missing_imports = true
+
+# какие папки исключить
+exclude = [
+    "frontend",
+    ".venv",
+    "venv",
+    "migrations",
+]

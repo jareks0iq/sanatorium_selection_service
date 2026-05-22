@@ -164,13 +164,13 @@ class SanatoriumRepository:
         result = []
 
         for s in sanatorium_orm:
-            tag_ids = [Tag(id=t.id, name=t.name, category=t.category) for t in s.tags]
+            tags = [Tag(id=t.id, name=t.name, category=t.category) for t in s.tags]
             sanatorium = Sanatorium(
                 id=s.id,
                 name=s.name,
                 budget=s.budget,
                 region=s.region,
-                tags=tag_ids,
+                tags=tags,
                 food=s.food,
                 rating=s.rating,
             )
@@ -217,7 +217,6 @@ class ReviewRepository:
 
         for s in active_review:
             review = Review(
-                id=s.id,
                 user_id=s.user_id,
                 sanatorium_id=s.sanatorium_id,
                 text=s.text,

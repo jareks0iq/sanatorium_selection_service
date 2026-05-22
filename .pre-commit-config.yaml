@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.14
+    hooks:
+      # сначала линтер с автоисправлением
+      - id: ruff
+        args: [--fix]
+      # потом форматтер
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.1.0
+    hooks:
+      - id: mypy
+        # проверяем только наши Python-пакеты, не frontend
+        files: ^(domain|adapters|service_layer|entrypoints)/
+        # подтягиваем доп. зависимости, чтобы mypy видел типы
+        additional_dependencies: []
+
+  # полезные мелкие проверки от самих авторов pre-commit
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # убирает лишние пробелы в конце строк
+      - id: trailing-whitespace
+      # гарантирует перевод строки в конце файла
+      - id: end-of-file-fixer
+      # проверяет, что YAML-файлы валидны
+      - id: check-yaml
+      # не даёт закоммитить огромные файлы случайно
+      - id: check-added-large-files
+      # ловит конфликты слияния, забытые в коде
+      - id: check-merge-conflict
+      # не даёт закоммитить .env и приватные ключи
+      - id: detect-private-key

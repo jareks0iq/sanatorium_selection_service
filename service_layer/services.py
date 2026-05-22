@@ -1,6 +1,6 @@
 from adapters.repository import ReviewRepository, UserRepository
 from domain.model import Review, User, UserProfile
-from service_layer.MessageBus import EventsBus
+from service_layer.message_bus import EventsBus
 
 event_bus = EventsBus()
 
@@ -60,7 +60,6 @@ def login_in(login: str, password: str):
 
 def add_review(user_id: int, sanatorium_id: int, text: str, rating: float, created_at: str):
     review = Review(
-        id=None,
         user_id=user_id,
         sanatorium_id=sanatorium_id,
         text=text,
@@ -78,7 +77,7 @@ def add_review(user_id: int, sanatorium_id: int, text: str, rating: float, creat
 
 
 def create_profile(
-    id,
+    id: int | None,
     goal: str,
     budget: int,
     region: str,
@@ -89,6 +88,8 @@ def create_profile(
     services_weight: int,
     conditions_weight: int,
 ):
+    if id is None:
+        raise ValueError("Cannot create profile for unsaved user")
     profile = UserProfile(
         id=None,
         user_id=id,
