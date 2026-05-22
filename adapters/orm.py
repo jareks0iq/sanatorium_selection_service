@@ -1,6 +1,7 @@
-from adapters.database import Base, sanatorium_tags, profile_tags
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from adapters.database import Base, profile_tags, sanatorium_tags
 
 
 class UserORM(Base):
@@ -12,6 +13,7 @@ class UserORM(Base):
 
     profile: Mapped["UserProfileORM"] = relationship(back_populates="user")
     review: Mapped[list["ReviewORM"]] = relationship(back_populates="user")
+
 
 class UserProfileORM(Base):
     __tablename__ = "profiles"
@@ -29,6 +31,7 @@ class UserProfileORM(Base):
     user: Mapped["UserORM"] = relationship(back_populates="profile")
     tags: Mapped[list["TagOrm"]] = relationship(secondary=profile_tags)
 
+
 class SanatoriumORM(Base):
     __tablename__ = "sanatoriums"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -41,11 +44,13 @@ class SanatoriumORM(Base):
 
     review: Mapped[list["ReviewORM"]] = relationship(back_populates="sanatorium")
 
+
 class TagOrm(Base):
     __tablename__ = "tags"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     category: Mapped[str]
+
 
 class ReviewORM(Base):
     __tablename__ = "reviews"
@@ -58,4 +63,3 @@ class ReviewORM(Base):
 
     user: Mapped["UserORM"] = relationship(back_populates="review")
     sanatorium: Mapped["SanatoriumORM"] = relationship(back_populates="review")
-

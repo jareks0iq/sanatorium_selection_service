@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 
 const API = "http://127.0.0.1:5000";
 
-// Заглушки-картинки для санаториев (по ключевому слову из региона)
-// Используем бесплатные фото природы с picsum.photos (случайные, но стабильные по seed)
 function getSanatoriumImage(id) {
-  return `https://picsum.photos/seed/sanat${id}/600/300`;
+  return `/images/sanat_${id}.png`;
 }
 
 export default function App() {

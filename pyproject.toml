@@ -1,0 +1,32 @@
+[tool.ruff]
+# длина строки — стандарт 88 (как в black) или 120, выбирай что нравится
+line-length = 100
+# целевая версия Python — под неё ruff будет проверять синтаксис
+target-version = "py311"
+# какие папки исключить из проверки
+exclude = [
+    ".venv",
+    "venv",
+    "frontend",
+    "migrations",
+]
+
+[tool.ruff.lint]
+# наборы правил, которые включаем. каждая буква — группа проверок:
+select = [
+    "E",   # pycodestyle errors — ошибки стиля
+    "W",   # pycodestyle warnings — предупреждения стиля
+    "F",   # pyflakes — неиспользуемые импорты, переменные, потенциальные баги
+    "I",   # isort — сортировка импортов
+    "N",   # pep8-naming — правильные имена (классы CamelCase, функции snake_case)
+    "UP",  # pyupgrade — подсказки по современному синтаксису Python
+    "B",   # flake8-bugbear — частые источники багов
+    "C4",  # flake8-comprehensions — улучшения списковых включений
+    "SIM", # flake8-simplify — упрощение кода
+]
+# правила, которые игнорируем (можно дополнять по ходу)
+ignore = []
+
+[tool.ruff.format]
+# использовать двойные кавычки как стандарт
+quote-style = "double"
