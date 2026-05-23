@@ -54,3 +54,13 @@ exclude = [
     "venv",
     "migrations",
 ]
+
+[tool.pytest.ini_options]
+# где искать тесты
+testpaths = ["tests"]
+# файлы с тестами должны называться test_*.py
+python_files = ["test_*.py"]
+# функции-тесты должны начинаться с test_
+python_functions = ["test_*"]
+# удобный вывод: показывать какие тесты прошли/упали
+addopts = "-v"
