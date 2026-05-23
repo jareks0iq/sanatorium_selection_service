@@ -86,7 +86,6 @@ class UserProfile:  # Предпочтения пользователя, кри�
         self.conditions_weight = conditions_weight
         assert self.id is not None
         self.events.append(ProfileUpdated(self.id))
-        self.events.append(ProfileUpdated(self.id))
 
 
 class Sanatorium:  # Общие сведения о санаториуме
