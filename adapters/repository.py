@@ -1,13 +1,13 @@
 from sqlalchemy import func
 
-from adapters.database import SessionLocal, sanatorium_tags
+from adapters.database import sanatorium_tags
 from adapters.orm import ReviewORM, SanatoriumORM, TagOrm, UserORM, UserProfileORM
 from domain.model import Review, Sanatorium, Tag, User, UserProfile
 
 
 class UserRepository:
-    def __init__(self):
-        self.session = SessionLocal()
+    def __init__(self, session):
+        self.session = session
 
     def add(self, user):
         user_orm = UserORM(name=user.name, login=user.login, password=user.password)
@@ -104,8 +104,8 @@ class UserRepository:
 
 
 class SanatoriumRepository:
-    def __init__(self):
-        self.session = SessionLocal()
+    def __init__(self, session):
+        self.session = session
 
     def get_all(self):
         sanatorium_orm = self.session.query(SanatoriumORM).all()
@@ -179,8 +179,8 @@ class SanatoriumRepository:
 
 
 class TagRepository:
-    def __init__(self):
-        self.session = SessionLocal()
+    def __init__(self, session):
+        self.session = session
 
     def get_all(self):
         tag_orm = self.session.query(TagOrm).all()
@@ -195,8 +195,8 @@ class TagRepository:
 
 
 class ReviewRepository:
-    def __init__(self):
-        self.session = SessionLocal()
+    def __init__(self, session):
+        self.session = session
 
     def add(self, review):
         review_orm = ReviewORM(

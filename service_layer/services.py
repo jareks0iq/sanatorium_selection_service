@@ -5,8 +5,8 @@ from service_layer.message_bus import EventsBus
 event_bus = EventsBus()
 
 
-def change_user_password(user, old_password: str, new_password: str):
-    flag = UserRepository().update_password(user, old_password, new_password)
+def change_user_password(user, old_password: str, new_password: str, session):
+    flag = UserRepository(session).update_password(user, old_password, new_password)
 
     user.change_password(flag)
 
@@ -18,9 +18,8 @@ def change_user_password(user, old_password: str, new_password: str):
     return flag
 
 
-def user_created(name: str, login: str, password: str):
-
-    user_repository = UserRepository()
+def user_created(name: str, login: str, password: str, session):
+    user_repository = UserRepository(session)
     existing_user = user_repository.get_by_login(login)
 
     if existing_user:
@@ -28,7 +27,7 @@ def user_created(name: str, login: str, password: str):
 
     user = User(id=None, name=name, login=login, password=password)
 
-    profile_repository = UserRepository()
+    profile_repository = UserRepository(session)
     profile_repository.add(user)
 
     user.register()
@@ -39,8 +38,8 @@ def user_created(name: str, login: str, password: str):
     user.events.clear()
 
 
-def login_in(login: str, password: str):
-    user_repository = UserRepository()
+def login_in(login: str, password: str, session):
+    user_repository = UserRepository(session)
     existing_user = user_repository.get_by_login(login)
 
     if existing_user:
@@ -58,7 +57,9 @@ def login_in(login: str, password: str):
         return -1
 
 
-def add_review(user_id: int, sanatorium_id: int, text: str, rating: float, created_at: str):
+def add_review(
+    user_id: int, sanatorium_id: int, text: str, rating: float, created_at: str, session
+):
     review = Review(
         user_id=user_id,
         sanatorium_id=sanatorium_id,
@@ -66,7 +67,7 @@ def add_review(user_id: int, sanatorium_id: int, text: str, rating: float, creat
         rating=rating,
         created_at=created_at,
     )
-    ReviewRepository().add(review)
+    ReviewRepository(session).add(review)
 
     review.created()
 
@@ -87,6 +88,7 @@ def create_profile(
     medical_weight: int,
     services_weight: int,
     conditions_weight: int,
+    session,
 ):
     if id is None:
         raise ValueError("Cannot create profile for unsaved user")
@@ -104,7 +106,7 @@ def create_profile(
         conditions_weight=conditions_weight,
     )
 
-    profile_repository = UserRepository()
+    profile_repository = UserRepository(session)
     profile_repository.create_profile(profile, tag_ids)
 
     profile.created_profile()
@@ -126,9 +128,10 @@ def update_profile(
     medical_weight: int,
     services_weight: int,
     conditions_weight: int,
+    session,
 ):
 
-    profile_repository = UserRepository()
+    profile_repository = UserRepository(session)
     profile = profile_repository.get_by_user_id(id)
 
     profile.update_profile(
