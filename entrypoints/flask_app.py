@@ -130,8 +130,6 @@ def register():
     with SessionLocal() as session:
         data = request.get_json()
 
-        if not data:
-            return jsonify({"error": "Нет данных"}), 400
         try:
             user_created(
                 name=data["name"], login=data["login"], password=data["password"], session=session

@@ -56,6 +56,7 @@ class UserRepository:
         )
         self.session.add(user_profile_orm)
         self.session.commit()
+        profile.id = user_profile_orm.id
 
     def get_by_user_id(self, user_id):
         active_profile = self.session.query(UserProfileORM).filter_by(user_id=user_id).first()

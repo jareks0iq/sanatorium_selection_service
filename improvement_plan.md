@@ -39,8 +39,8 @@ Uptime Kuma для мониторинга доступности с алерта
 - [ ] Блок 7: добавить PYTHONUNBUFFERED=1 и PYTHONDONTWRITEBYTECODE=1 в Dockerfile
 - [ ] Обогатить базовый класс Event метаданными (occurred_at, event_id)
 - [ ] Пересмотреть управление id у доменных объектов (сейчас int | None)
-- [ ] Переименовать improvment_plan.md → improvement_plan.md (опечатка)
 - [ ] UserProfile.tags меняет тип: list[int] при создании (id с сайта),
       list[Tag] при чтении из БД. Неконсистентность типов.
       Варианты: разделить create/read представления профиля, либо
       хранить только id и подгружать Tag отдельно перед recommend.
+- [ ] Unit of Work
