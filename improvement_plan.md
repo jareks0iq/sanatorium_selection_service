@@ -7,8 +7,8 @@
 - [x] Блок 2 — Тестирование
 Покрыть unit-тестами доменную логику (GP-алгоритм, бизнес-правила). Integration-тесты для репозиториев и сервисов через testcontainers. API-тесты эндпоинтов. Использовать pytest, pytest-asyncio, factory_boy, httpx, coverage. Цель: 60-70% покрытия.
 
-- [ ] Блок 3 — Документация
-README.md на английском с архитектурной диаграммой (excalidraw), badges, quick start. Создать docs/architecture.md, docs/api.md, папку docs/adr/ с Architecture Decision Records. CHANGELOG.md, CONTRIBUTING.md, .env.example.
+- [x] Блок 3 — Документация
+README.md на английском с архитектурной диаграммой (excalidraw), badges, quick start. Создать .env.example.
 
 - [ ] Блок 4 — Конфигурация и секреты
 Все настройки через pydantic-settings и переменные окружения. Никаких хардкодов. Разделение конфигурации dev/test/prod. Валидация при старте приложения. 12-factor app методология.
