@@ -1,130 +1,145 @@
-# 🏥 Сервис выбора санатория методом целевого программирования
+# 🏥 Sanatorium Selection Service
 
-Веб-сервис для подбора санатория, максимально соответствующего предпочтениям пользователя. Ранжирование выполняется алгоритмом **Weighted Goal Programming** — методом многокритериальной оптимизации.
+A web service that recommends sanatoriums best matching a user's preferences. Ranking is powered by a **Weighted Goal Programming** algorithm — a multi-criteria optimization method.
 
-Курсовая работа, СПбГЭТУ «ЛЭТИ», кафедра ИС, 2026.
+Course project, Saint Petersburg Electrotechnical University (ETU "LETI"), Department of Information Systems, 2026.
 
----
-
-## Возможности
-
-- Регистрация и аутентификация пользователей
-- Профиль с настройкой предпочтений: бюджет, регион, цель отдыха, медицинский профиль, услуги, условия проживания
-- Система тегов (28 тегов в 3 категориях) для описания санаториев и предпочтений пользователя
-- Слайдеры приоритетов — пользователь задаёт важность каждого критерия
-- Алгоритм Weighted Goal Programming для ранжирования санаториев
-- Каталог санаториев с детальным просмотром
-- Сравнение до 3 санаториев бок о бок
-- Система отзывов с рейтингом
-- Смена пароля
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-orange)
+![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue)
+![Tests](https://img.shields.io/badge/tests-35%20passed-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-83%25-brightgreen)
 
 ---
 
-## Стек технологий
+## Features
 
-| Слой | Технология |
-|------|-----------|
+- User registration and authentication
+- Customizable preference profile: budget, region, treatment goal, medical profile, services, accommodation conditions
+- Tag system (28 tags across 3 categories) describing both sanatoriums and user preferences
+- Priority sliders — the user sets the importance of each criterion
+- Weighted Goal Programming algorithm for ranking sanatoriums
+- Sanatorium catalog with detailed views
+- Side-by-side comparison of up to 3 sanatoriums
+- Review system with ratings
+- Password change
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
 | Backend | Python, Flask, SQLAlchemy 2.0 |
 | Frontend | React (JavaScript) |
-| БД | PostgreSQL |
-| Контейнеризация | Docker, docker-compose |
+| Database | PostgreSQL |
+| Containerization | Docker, docker-compose |
+| Testing | pytest, testcontainers |
+| Code quality | ruff, mypy, pre-commit |
 
 ---
 
-## Архитектура
+## Architecture
 
-Проект построен по принципам **Domain-Driven Design** (по книге Персиваля «Architecture Patterns with Python»):
+The project follows **Domain-Driven Design** principles (based on Percival & Gregory's *Architecture Patterns with Python*):
 
 ```
 courseSanat/
-├── domain/                  # Доменный слой
-│   ├── model.py             # Сущности: User, UserProfile, Sanatorium, Tag, Review
-│   └── goal_programming.py  # Алгоритм Weighted Goal Programming
-├── adapters/                # Инфраструктурный слой
-│   ├── database.py          # Подключение к БД, промежуточные таблицы
-│   ├── orm.py               # ORM-маппинг (SQLAlchemy)
-│   └── repository.py        # Репозитории (паттерн Repository)
-├── service_layer/           # Сервисный слой
-│   ├── services.py          # Бизнес-логика
-│   ├── handlers.py          # Обработчики событий
-│   └── MessageBus.py        # Шина событий (Event Bus)
-├── entrypoints/             # Точки входа
+├── domain/                  # Domain layer
+│   ├── model.py             # Entities: User, UserProfile, Sanatorium, Tag, Review
+│   └── goal_programming.py  # Weighted Goal Programming algorithm
+├── adapters/                # Infrastructure layer
+│   ├── database.py          # DB connection, association tables
+│   ├── orm.py               # ORM mapping (SQLAlchemy)
+│   └── repository.py        # Repositories (Repository pattern)
+├── service_layer/           # Service layer
+│   ├── services.py          # Application/business logic
+│   ├── handlers.py          # Event handlers
+│   └── message_bus.py       # Event bus
+├── entrypoints/             # Entry points
 │   └── flask_app.py         # REST API (Flask)
-├── frontend/                # React-приложение
-│   └── src/App.js           # Единый компонент с навигацией
-├── seed.py                  # Наполнение БД тестовыми данными
-├── Dockerfile               # Сборка бэкенда
-├── docker-compose.yml       # Оркестрация всех сервисов
-└── requirements.txt         # Python-зависимости
+├── frontend/                # React application
+│   └── src/App.js           # Single component with navigation
+├── tests/                   # Test suite
+│   ├── unit/                # Unit tests (algorithm, domain models)
+│   ├── integration/         # Integration tests (repositories + real DB)
+│   ├── api/                 # API tests (Flask test client)
+│   └── conftest.py          # Shared fixtures (testcontainers, sessions)
+├── seed.py                  # Database seeding with sample data
+├── Dockerfile               # Backend image
+├── docker-compose.yml       # Service orchestration
+├── pyproject.toml           # Tooling config (ruff, mypy, pytest)
+├── .pre-commit-config.yaml  # Pre-commit hooks
+└── requirements.txt         # Python dependencies
 ```
 
-### Используемые паттерны
+### Design Patterns
 
-**Domain-Driven Design** — доменные модели не зависят от БД и фреймворков. Бизнес-логика инкапсулирована в домене.
+**Domain-Driven Design** — domain models are independent of the database and frameworks. Business logic is encapsulated in the domain.
 
-**Repository Pattern** — репозитории абстрагируют доступ к данным. Домен работает с чистыми Python-объектами, конвертация в ORM происходит в репозиториях.
+**Repository Pattern** — repositories abstract data access. The domain works with plain Python objects; conversion to ORM happens inside the repositories. Repositories receive their database session via dependency injection, which keeps them decoupled and testable.
 
-**Service Layer** — координирует вызовы между доменом и репозиториями, обрабатывает транзакции.
+**Service Layer** — coordinates calls between the domain and repositories.
 
-**Event-Driven Architecture** — доменные объекты генерируют события (UserRegistered, ProfileCreated, ReviewCreated), шина событий маршрутизирует их в обработчики.
+**Event-Driven Architecture** — domain objects raise events (UserRegistered, ProfileCreated, ReviewCreated), and an event bus routes them to their handlers.
 
-**Data Mapper** — ORM-классы отделены от доменных моделей, маппинг выполняется в слое репозиториев.
+**Data Mapper** — ORM classes are separated from domain models; mapping is performed in the repository layer.
 
 ---
 
-## Алгоритм Weighted Goal Programming
+## Weighted Goal Programming Algorithm
 
-Метод целевого программирования решает задачу многокритериальной оптимизации: пользователь имеет несколько целей одновременно (дёшево, в нужном регионе, с нужными услугами), и алгоритм находит вариант с минимальным суммарным отклонением от всех целей.
+Goal Programming solves a multi-criteria optimization problem: the user has several goals at once (low price, preferred region, desired services), and the algorithm finds the option with the minimal total deviation from all goals.
 
-### Формализация
+### Formalization
 
-Для каждого санатория вычисляется **score** — взвешенная сумма нормализованных отклонений от целей пользователя. Чем меньше score — тем лучше санаторий соответствует запросу.
+For each sanatorium a **score** is computed — a weighted sum of normalized deviations from the user's goals. The lower the score, the better the sanatorium matches the request.
 
-#### Шаг 1: Нормализация весов
+#### Step 1: Weight normalization
 
-Пользователь задаёт приоритеты критериев (от 1 до 10). Веса нормализуются:
+The user sets criterion priorities (from 1 to 10). Weights are normalized:
 
 ```
 w_i = priority_i / (priority_budget + priority_region + priority_medical + priority_services + priority_conditions)
 ```
 
-Сумма всех w_i = 1.
+The sum of all w_i = 1.
 
-#### Шаг 2: Вычисление отклонений
+#### Step 2: Deviation calculation
 
-**Бюджет** (percentage normalization):
+**Budget** (percentage normalization):
 ```
-d_budget = max(0, budget_санатория - budget_цель) / budget_цель
+d_budget = max(0, sanatorium_budget - target_budget) / target_budget
 ```
-Если санаторий дешевле цели — отклонение = 0 (это не проблема). Если дороже — отклонение пропорционально превышению.
+If the sanatorium is cheaper than the target, the deviation is 0 (not a problem). If more expensive, the deviation is proportional to the excess.
 
-**Регион** (бинарное):
+**Region** (binary):
 ```
-d_region = 0, если регион совпал
-d_region = 1, если регион не совпал
+d_region = 0 if the region matches
+d_region = 1 if the region does not match
 ```
 
-**Теги по категориям** (доля несовпадения):
+**Tags by category** (proportion of mismatch):
 ```
-d_medical = 1 - |выбранные_medical ∩ теги_санатория_medical| / |выбранные_medical|
-d_services = 1 - |выбранные_services ∩ теги_санатория_services| / |выбранные_services|
-d_conditions = 1 - |выбранные_conditions ∩ теги_санатория_conditions| / |выбранные_conditions|
+d_medical    = 1 - |selected_medical    ∩ sanatorium_medical|    / |selected_medical|
+d_services   = 1 - |selected_services   ∩ sanatorium_services|   / |selected_services|
+d_conditions = 1 - |selected_conditions ∩ sanatorium_conditions| / |selected_conditions|
 ```
-Если пользователь не выбрал тегов в категории — отклонение = 0.
+If the user selected no tags in a category, the deviation is 0.
 
-#### Шаг 3: Итоговый score
+#### Step 3: Final score
 
 ```
 score = w_budget * d_budget + w_region * d_region + w_medical * d_medical + w_services * d_services + w_conditions * d_conditions
 ```
 
-Все отклонения находятся в диапазоне [0, 1], что позволяет складывать их без искажений. Санатории сортируются по возрастанию score.
+All deviations lie in the range [0, 1], which allows them to be summed without distortion. Sanatoriums are sorted by ascending score.
 
 ---
 
-## Запуск
+## Getting Started
 
-### С Docker (рекомендуется)
+### With Docker (recommended)
 
 ```bash
 git clone https://github.com/jareks0iq/sanatorium_selection_service.git
@@ -132,25 +147,25 @@ cd sanatorium_selection_service
 docker-compose up --build
 ```
 
-После запуска:
-- Фронтенд: http://localhost:3000
+Once running:
+- Frontend: http://localhost:3000
 - API: http://localhost:5000
-- БД заполняется автоматически через seed
+- The database is seeded automatically.
 
-### Без Docker
+### Without Docker
 
-**Требования:** Python 3.11+, Node.js 18+, PostgreSQL 15+
+**Requirements:** Python 3.11+, Node.js 18+, PostgreSQL 15+
 
-1. Создайте БД `sanat` в PostgreSQL
+1. Create a `sanat` database in PostgreSQL.
 
-2. Бэкенд:
+2. Backend:
 ```bash
 pip install -r requirements.txt
 python seed.py
 python entrypoints/flask_app.py
 ```
 
-3. Фронтенд:
+3. Frontend:
 ```bash
 cd frontend
 npm install
@@ -159,41 +174,86 @@ npm start
 
 ---
 
-## API endpoints
+## Testing
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| GET | /api/tags | Все теги |
-| GET | /api/sanatoriums/ | Все санатории |
-| GET | /api/sanatoriums/\<id\> | Санаторий по ID |
-| POST | /api/register | Регистрация |
-| POST | /api/login | Вход |
-| POST | /api/profile | Создание/обновление профиля |
-| PUT | /api/password | Смена пароля |
-| POST | /api/recommend | Получение рекомендаций (Weighted GP) |
-| GET | /api/reviews/\<sanatorium_id\> | Отзывы санатория |
-| POST | /api/reviews | Создание отзыва |
+The project has a comprehensive test suite of **35 tests** with **83% coverage**, organized into three levels:
 
----
+- **Unit tests** — the Goal Programming algorithm and domain models, in full isolation (no database).
+- **Integration tests** — repositories tested against a real PostgreSQL database spun up on the fly via **testcontainers**, with per-test isolation.
+- **API tests** — endpoints tested end-to-end through the Flask test client.
 
-## Структура БД
+Run the tests:
+```bash
+pytest
+```
 
-**users** — пользователи (id, name, login, password)
+Run with a coverage report:
+```bash
+pytest --cov=domain --cov=adapters --cov=service_layer --cov=entrypoints --cov-report=term-missing
+```
 
-**profiles** — профили с предпочтениями и весами критериев
-
-**sanatoriums** — санатории (name, budget, region, food, rating)
-
-**tags** — теги трёх категорий: medical, services, conditions
-
-**sanatorium_tags** — связь many-to-many между санаториями и тегами
-
-**profile_tags** — связь many-to-many между профилями и тегами
-
-**reviews** — отзывы (user_id, sanatorium_id, text, rating, created_at)
+> Integration and API tests require Docker to be running (testcontainers starts a PostgreSQL container automatically).
 
 ---
 
-## Автор
+## Code Quality
 
-Студент СПбГЭТУ «ЛЭТИ», кафедра ИС, группа 4374, 2026
+Code quality is enforced automatically:
+
+- **ruff** — linting and formatting
+- **mypy** — static type checking
+- **pre-commit** — runs the above checks before every commit
+
+Set up the pre-commit hooks once:
+```bash
+pre-commit install
+```
+
+Run all checks manually:
+```bash
+ruff check .
+ruff format .
+mypy domain adapters service_layer entrypoints
+pre-commit run --all-files
+```
+
+---
+
+## API Endpoints
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | /api/tags | All tags |
+| GET | /api/sanatoriums/ | All sanatoriums |
+| GET | /api/sanatoriums/\<id\> | Sanatorium by ID |
+| POST | /api/register | Registration |
+| POST | /api/login | Login |
+| POST | /api/profile | Create / update profile |
+| PUT | /api/password | Change password |
+| POST | /api/recommend | Get recommendations (Weighted GP) |
+| GET | /api/reviews/\<sanatorium_id\> | Reviews for a sanatorium |
+| POST | /api/reviews | Create a review |
+
+---
+
+## Database Schema
+
+**users** — users (id, name, login, password)
+
+**profiles** — profiles with preferences and criterion weights
+
+**sanatoriums** — sanatoriums (name, budget, region, food, rating)
+
+**tags** — tags in three categories: medical, services, conditions
+
+**sanatorium_tags** — many-to-many relation between sanatoriums and tags
+
+**profile_tags** — many-to-many relation between profiles and tags
+
+**reviews** — reviews (user_id, sanatorium_id, text, rating, created_at)
+
+---
+
+## Author
+
+Student at ETU "LETI", Department of Information Systems, group 4374, 2026
