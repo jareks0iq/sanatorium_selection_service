@@ -1,12 +1,9 @@
-import os
-
 from sqlalchemy import Column, ForeignKey, Integer, Table, create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL", "postgresql+psycopg2://postgres:postgres@localhost:5432/sanat"
-)
-engine = create_engine(DATABASE_URL)
+from adapters.config import settings
+
+engine = create_engine(settings.database_url)
 SessionLocal = sessionmaker(bind=engine)
 
 

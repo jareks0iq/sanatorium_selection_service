@@ -12,12 +12,13 @@ repos:
     rev: v2.1.0
     hooks:
       - id: mypy
-        # проверяем только наши Python-пакеты, не frontend
         files: ^(domain|adapters|service_layer|entrypoints)/
-        # подтягиваем доп. зависимости, чтобы mypy видел типы
-        additional_dependencies: []
+        additional_dependencies:
+          - pydantic==2.13.4
+          - pydantic-settings==2.11.0
 
-  # полезные мелкие проверки от самих авторов pre-commit
+
+    # полезные мелкие проверки от самих авторов pre-commit
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:

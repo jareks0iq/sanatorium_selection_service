@@ -94,7 +94,6 @@ def get_reviews(sanatorium_id):
             user = UserRepository(session).get_by_id(s.user_id)
             response.append(
                 {
-                    "id": s.id,
                     "user_id": s.user_id,
                     "user_name": user.name,
                     "sanatorium_id": s.sanatorium_id,

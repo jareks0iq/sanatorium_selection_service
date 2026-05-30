@@ -1,0 +1,40 @@
+-r requirements.txt
+
+# линтер и форматтер
+ruff==0.15.14
+
+# статическая типизация
+mypy==2.1.0
+mypy_extensions==1.1.0
+
+# pre-commit хуки
+pre_commit==4.6.0
+cfgv==3.5.0
+identify==2.6.19
+nodeenv==1.10.0
+virtualenv==21.3.3
+distlib==0.4.0
+filelock==3.29.0
+platformdirs==4.9.6
+PyYAML==6.0.3
+
+# тестирование
+pytest==9.0.3
+pytest-cov==7.1.0
+coverage==7.14.0
+testcontainers==4.14.2
+iniconfig==2.3.0
+pluggy==1.6.0
+pathspec==1.1.1
+packaging==26.2
+Pygments==2.20.0
+wrapt==2.2.1
+
+# зависимости testcontainers (нужен Docker SDK)
+docker==7.1.0
+requests==2.34.2
+urllib3==2.7.0
+certifi==2026.5.20
+charset-normalizer==3.4.7
+idna==3.16
+pywin32==311
