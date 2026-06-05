@@ -18,10 +18,10 @@ class User:  # login, password
 
     def change_password(self, changed_password):
         if changed_password:
-            self.events.append(PasswordChanged(self.login))
+            self.events.append(PasswordChanged(self.login, self.id))
             return True
         else:
-            self.events.append(PasswordNotChanged(self.login))
+            self.events.append(PasswordNotChanged(self.login, self.id))
             return False
 
     def user_log_in(self):
@@ -59,7 +59,7 @@ class UserProfile:  # Предпочтения пользователя, кри�
         self.events: list[Event] = []
 
     def created_profile(self):
-        self.events.append(ProfileCreated(self.user_id))
+        self.events.append(ProfileCreated(self.user_id, self.id))
 
     def update_profile(
         self,
@@ -85,7 +85,7 @@ class UserProfile:  # Предпочтения пользователя, кри�
         self.services_weight = services_weight
         self.conditions_weight = conditions_weight
         assert self.id is not None
-        self.events.append(ProfileUpdated(self.id))
+        self.events.append(ProfileUpdated(self.user_id, self.id))
 
 
 class Sanatorium:  # Общие сведения о санаториуме
@@ -120,7 +120,7 @@ class Review:
         self.events: list[Event] = []
 
     def created(self):
-        self.events.append(ReviewCreated(self.sanatorium_id))
+        self.events.append(ReviewCreated(self.sanatorium_id, self.user_id))
 
 
 class Event:
@@ -133,13 +133,15 @@ class UserLogin(Event):
 
 
 class PasswordChanged(Event):
-    def __init__(self, login: str):
+    def __init__(self, login: str, user_id: int):
         self.login = login
+        self.user_id = user_id
 
 
 class PasswordNotChanged(Event):
-    def __init__(self, login: str):
+    def __init__(self, login: str, user_id: int):
         self.login = login
+        self.user_id = user_id
 
 
 class UserRegistered(Event):
@@ -148,13 +150,15 @@ class UserRegistered(Event):
 
 
 class ProfileCreated(Event):
-    def __init__(self, user_id: int):
+    def __init__(self, user_id: int, profile_id: int):
         self.user_id = user_id
+        self.profile_id = profile_id
 
 
 class ProfileUpdated(Event):
-    def __init__(self, user_id: int):
+    def __init__(self, user_id: int, profile_id: int):
         self.user_id = user_id
+        self.profile_id = profile_id
 
 
 class RecommendationCalculated(Event):
@@ -164,5 +168,6 @@ class RecommendationCalculated(Event):
 
 
 class ReviewCreated(Event):
-    def __init__(self, sanatorium_id: int):
+    def __init__(self, sanatorium_id: int, user_id: int):
         self.sanatorium_id = sanatorium_id
+        self.user_id = user_id

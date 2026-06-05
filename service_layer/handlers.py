@@ -1,30 +1,40 @@
+from adapters.logger import get_logger
+
+log = get_logger(__name__)
+
+
 def handle_password_changed(event):
-    print(f"Пароль пользователя {event.login} изменён")
+    log.info("user_changed_password", user_id=event.user_id)
 
 
 def handle_password_not_changed(event):
-    print(f"Пароль пользователя {event.login} не изменён")
+    log.warning("user_password_not_changed", user_id=event.user_id)
 
 
 def handle_user_created(event):
-    print("Профиль успешно создан")
+    log.info("user_registered", user_id=event.user_id)
 
 
 def handle_profile_created(event):
-    print("Профиль создан")
+    log.info("profile_created", user_id=event.user_id, user_profile_id=event.profile_id)
 
 
 def handle_profile_updated(event):
-    print("Профиль обновлён")
+    log.info("profile_updated", user_id=event.user_id, user_profile_id=event.profile_id)
 
 
 def handle_recomendations_calculated(event):
-    print(f"Рекомендации для пользователя {event.name} рассчитаны")
+    log.info("get_recommendations", user_id=event.user_id)
 
 
 def handle_user_login(event):
-    print("Вход в аккаунт")
+    log.info("user_log_in", user_id=event.user_id)
 
 
 def handle_review_created(event):
-    print("Отзыв отправлен")
+    log.info(
+        "review_created",
+        review_id=event.review_id,
+        sanatorium_id=event.sanatorium_id,
+        user_id=event.user_id,
+    )

@@ -55,7 +55,7 @@ def test_get_active_sanat_by_id_returns_data(client, a_sanatorium):
     response = client.get(f"api/sanatoriums/{a_sanatorium.id}")
 
     assert response.status_code == 200
-    sanatorium = response.get_json()[0]
+    sanatorium = response.get_json()
 
     assert sanatorium["name"] == "Тестовый санаторий"
     assert "tags" in sanatorium

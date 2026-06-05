@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = "http://127.0.0.1:5000";
+const API = "http://127.0.0.1:8000";
 
 function getSanatoriumImage(id) {
   return `/images/sanat_${id}.png`;

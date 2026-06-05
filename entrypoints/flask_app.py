@@ -4,23 +4,81 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from adapters.database import SessionLocal
+from adapters.logger import configure_logging, get_logger
 from adapters.repository import (
     ReviewRepository,
     SanatoriumRepository,
     TagRepository,
     UserRepository,
 )
+from domain.exception import (
+    DomainError,
+    InvalidRequestError,
+    ProfileNotFoundError,
+    SanatoriumNotFoundError,
+    UserAlreadyExistsError,
+    UserNotFoundError,
+    WrongPasswordError,
+)
 from domain.goal_programming import recommend
 from service_layer.services import (
     add_review,
     change_user_password,
     create_profile,
+    login_in,
     update_profile,
     user_created,
 )
 
+configure_logging()
+log = get_logger(__name__)
 app = Flask(__name__)
 CORS(app)
+
+EXCEPTION_STATUS_CODES: dict[type[DomainError], int] = {
+    UserNotFoundError: 404,
+    ProfileNotFoundError: 404,
+    SanatoriumNotFoundError: 404,
+    WrongPasswordError: 401,
+    UserAlreadyExistsError: 409,
+    InvalidRequestError: 400,
+}
+
+
+@app.errorhandler(DomainError)
+def handle_domain_error(error: DomainError):
+    status_code = EXCEPTION_STATUS_CODES.get(type(error), 400)
+    error_type = type(error).__name__
+
+    log.warning(
+        "domain_error",
+        error_type=error_type,
+        error_message=str(error),
+        status_code=status_code,
+    )
+
+    return jsonify(
+        {
+            "error": error_type,
+            "message": str(error),
+        }
+    ), status_code
+
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(error: Exception):
+    log.error(
+        "unexpected_error",
+        error_type=type(error).__name__,
+        error_message=str(error),
+        exc_info=True,
+    )
+    return jsonify(
+        {
+            "error": "InternalServerError",
+            "message": "Внутренняя ошибка сервера",
+        }
+    ), 500
 
 
 @app.route("/api/tags", methods=["GET"])
@@ -64,24 +122,19 @@ def get_sanatorium_by_id(id: int):
     with SessionLocal() as session:
         sanat_repo = SanatoriumRepository(session)
         sanat = sanat_repo.get_by_id(id)
-
-        if sanat:
-            response = [
-                {
-                    "id": sanat.id,
-                    "name": sanat.name,
-                    "budget": sanat.budget,
-                    "region": sanat.region,
-                    "tags": [
-                        {"id": t.id, "name": t.name, "category": t.category} for t in sanat.tags
-                    ],
-                    "food": sanat.food,
-                    "rating": sanat.rating,
-                }
-            ]
-            return jsonify(response)
-        else:
-            return jsonify({"error": "Санаторий не найден"}), 404
+        if not sanat:
+            raise SanatoriumNotFoundError("Sanatorium not found")
+        return jsonify(
+            {
+                "id": sanat.id,
+                "name": sanat.name,
+                "budget": sanat.budget,
+                "region": sanat.region,
+                "tags": [{"id": t.id, "name": t.name, "category": t.category} for t in sanat.tags],
+                "food": sanat.food,
+                "rating": sanat.rating,
+            }
+        )
 
 
 @app.route("/api/reviews/<int:sanatorium_id>", methods=["GET"])
@@ -110,9 +163,6 @@ def route_add_review():
     with SessionLocal() as session:
         data = request.get_json()
 
-        if not data:
-            return jsonify({"error": "Нет данных"}), 400
-
         add_review(
             user_id=data["user_id"],
             sanatorium_id=data["sanatorium_id"],
@@ -129,13 +179,10 @@ def register():
     with SessionLocal() as session:
         data = request.get_json()
 
-        try:
-            user_created(
-                name=data["name"], login=data["login"], password=data["password"], session=session
-            )
-            return jsonify({"message": "Пользователь создан"}), 201
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+        user_created(
+            name=data["name"], login=data["login"], password=data["password"], session=session
+        )
+        return jsonify({"message": "Пользователь создан"}), 201
 
 
 @app.route("/api/login", methods=["POST"])
@@ -143,15 +190,7 @@ def login():
     with SessionLocal() as session:
         data = request.get_json()
 
-        if not data:
-            return jsonify({"error": "Нет данных"}), 400
-
-        user = UserRepository(session).get_by_login(data["login"])
-
-        if not user:
-            return jsonify({"error": "Пользователь не найден"}), 404
-        if user.password != data["password"]:
-            return jsonify({"error": "Неверный пароль"}), 401
+        user = login_in(data["login"], data["password"], session)
         return jsonify({"id": user.id, "name": user.name, "login": user.login})
 
 
@@ -163,6 +202,9 @@ def get_recommend():
 
         profile = UserRepository(session).get_by_user_id(user_id)
         sanatoriums = SanatoriumRepository(session).get_all()
+
+        if not profile:
+            raise ProfileNotFoundError("Profile not found")
 
         results = recommend(sanatoriums, profile)
 
@@ -189,13 +231,8 @@ def change_password_route():
         data = request.get_json()
         user = UserRepository(session).get_by_id(data["user_id"])
 
-        if not user:
-            return jsonify({"error": "Пользователь не найден"}), 404
-        flag = change_user_password(user, data["old_password"], data["new_password"], session)
-        if not flag:
-            return jsonify({"error": "Неверный пароль"})
-        else:
-            return jsonify({"message": "Пароль изменён"})
+        change_user_password(user, data["old_password"], data["new_password"], session)
+        return jsonify({"message": "Пароль изменён"})
 
 
 @app.route("/api/profile", methods=["PUT", "POST"])
@@ -239,4 +276,4 @@ if __name__ == "__main__":
     from adapters.database import Base, engine
 
     Base.metadata.create_all(engine)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=True)

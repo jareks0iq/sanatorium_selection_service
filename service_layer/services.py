@@ -1,4 +1,5 @@
 from adapters.repository import ReviewRepository, UserRepository
+from domain.exception import UserAlreadyExistsError, UserNotFoundError, WrongPasswordError
 from domain.model import Review, User, UserProfile
 from service_layer.message_bus import EventsBus
 
@@ -15,6 +16,8 @@ def change_user_password(user, old_password: str, new_password: str, session):
 
     user.events.clear()
 
+    if not flag:
+        raise WrongPasswordError("Wrong password")
     return flag
 
 
@@ -23,8 +26,7 @@ def user_created(name: str, login: str, password: str, session):
     existing_user = user_repository.get_by_login(login)
 
     if existing_user:
-        raise ValueError(f"Логин {login} уже занят")
-
+        raise UserAlreadyExistsError(f"User with login {login} is already occupied")
     user = User(id=None, name=name, login=login, password=password)
 
     profile_repository = UserRepository(session)
@@ -50,11 +52,11 @@ def login_in(login: str, password: str, session):
                 event_bus.handle(event)
 
             existing_user.events.clear()
-            return 1
+            return existing_user
         else:
-            return 0
+            raise WrongPasswordError("Wrong password")
     else:
-        return -1
+        raise UserNotFoundError(f"User with login {login} not found")
 
 
 def add_review(
